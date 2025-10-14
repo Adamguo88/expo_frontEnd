@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button, ScrollView, Keyboard, RefreshControl } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Button, ScrollView, RefreshControl, FlatList, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { Image } from "expo-image";
 import { useDeviceType } from "../hooks/useDeviceType"; // 引入自定義 Hook
 import Input from "./ui/Input";
 import Loading from "./ui/Loading";
 import NetworkError from "./ui/NetworkError";
 import useFetchData from "@hooks/useFetchData";
 // import useFetchData from "@hooks/useReducerFetchData";
-
+let mockData = Array.from({ length: 15 }).map((_, i) => i + 1);
 export default function ProductScreen() {
   const [isKeyword, setIsKeyword] = useState("");
   const [isCallSearch, setIsCallSearch] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { isCourse, isLoading, isError, setIsCourse, onReload } = useFetchData({ isKeyword, isCallSearch });
+  const [isMockCount, setIsMockCount] = useState(1);
   const { isTablet } = useDeviceType();
+
   const handleEvent = {
     callSearch: () => {
       setIsCallSearch(true);
@@ -28,6 +31,42 @@ export default function ProductScreen() {
         setIsRefreshing(false);
       }, 2000);
     },
+    onEndReached: () => {
+      let newIndex = 15 * isMockCount + 1;
+      const newMockData = Array.from({ length: 15 }).map((_, i) => newIndex + i);
+      mockData = [...mockData, ...newMockData];
+      console.log(mockData);
+      setIsMockCount((c) => (c += 1));
+    },
+  };
+  const alertEvent = {
+    one: () => {
+      Alert.alert("alert按鈕測試1", "這是內文123456789123456789123456789123456789", [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") },
+      ]);
+    },
+    two: () => {
+      Alert.alert("alert按鈕測試1", "這是內文123456789123456789123456789123456789", [
+        {
+          text: "Ask me later",
+          onPress: () => console.log("Ask me later pressed"),
+        },
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") },
+      ]);
+    },
+    three: () => {
+      Alert.alert("alert按鈕測試1", "這是內文123456789123456789123456789123456789");
+    },
   };
 
   if (isError) {
@@ -38,47 +77,62 @@ export default function ProductScreen() {
     <View style={styles.container}>
       <View style={styles.search}>
         <Input isKeyword={isKeyword} setIsKeyword={setIsKeyword} />
-        <Button title="按鈕" onPress={handleEvent.callSearch} style={{ borderRadius: 20 }} disabled={isCallSearch} />
+        <TouchableOpacity
+          onPress={handleEvent.callSearch}
+          disabled={isCallSearch}
+          activeOpacity={0.7}
+          style={[styles.baseButton, isCallSearch && styles.disabledButton]}
+        >
+          <Text style={[styles.buttonText, { color: "white" }, isCallSearch && styles.disabledText]}>按鈕</Text>
+        </TouchableOpacity>
+        {/* <Button title="按鈕" onPress={handleEvent.callSearch} disabled={isCallSearch} color="#1f99b0" /> */}
       </View>
+      <View style={[styles.search, { width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-around" }]}>
+        <Button title="alert測試1" color="#1f99b0" onPress={alertEvent.one} />
+        <Button title="alert測試2" color="#1f99b0" onPress={alertEvent.two} />
+        <Button title="alert測試2" color="#1f99b0" onPress={alertEvent.three} />
+      </View>
+      <Image style={{ width: 200, height: 200 }} source="https://expo-backend-one.vercel.app/images/pic.jpg" />
       <Text style={isTablet ? styles.titleTablet : styles.titlePhone}>商品列表</Text>
       {isLoading ? (
         <Loading size="small" color="#000" />
       ) : (
-        <SafeAreaProvider>
-          <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
-            <ScrollView
-              refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleEvent.onMobileRefresh} tintColor={"#1f99b0"} />}
-            >
-              <View style={[styles.listContainer, isTablet ? styles.listTablet : styles.listPhone]}>
-                {isCourse.length >= 1 ? (
-                  <React.Fragment>
-                    {/* 假設 ProductCard 是您的商品卡片組件 */}
+        <React.Fragment>
+          {isCourse.length >= 1 ? (
+            <SafeAreaProvider>
+              <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+                <ScrollView
+                  refreshControl={
+                    <RefreshControl refreshing={isRefreshing} onRefresh={handleEvent.onMobileRefresh} tintColor={"#1f99b0"} />
+                  }
+                >
+                  <View style={[styles.listContainer, isTablet ? styles.listTablet : styles.listPhone]}>
                     {isCourse.map((item) => {
                       return <ProductCard key={item.id} id={item.id} content={item.name} />;
                     })}
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <ProductCard key={1} id={1} content={"商品配置1"} />
-                    <ProductCard key={2} id={2} content={"商品配置2"} />
-                    <ProductCard key={3} id={3} content={"商品配置3"} />
-                    <ProductCard key={4} id={4} content={"商品配置4"} />
-                    <ProductCard key={5} id={5} content={"商品配置5"} />
-                    <ProductCard key={6} id={6} content={"商品配置6"} />
-                    <ProductCard key={7} id={7} content={"商品配置7"} />
-                    <ProductCard key={8} id={8} content={"商品配置8"} />
-                    <ProductCard key={9} id={9} content={"商品配置9"} />
-                    <ProductCard key={10} id={10} content={"商品配置10"} />
-                    <ProductCard key={11} id={11} content={"商品配置11"} />
-                    <ProductCard key={12} id={12} content={"商品配置12"} />
-                    <ProductCard key={13} id={13} content={"商品配置13"} />
-                    <ProductCard key={14} id={14} content={"商品配置14"} />
-                  </React.Fragment>
-                )}
-              </View>
-            </ScrollView>
-          </SafeAreaView>
-        </SafeAreaProvider>
+                  </View>
+                </ScrollView>
+              </SafeAreaView>
+            </SafeAreaProvider>
+          ) : (
+            <FlatList
+              style={styles.flatList}
+              data={mockData}
+              renderItem={({ item }) => (
+                <View style={{ alignItems: "center", justifyContent: "center" }}>
+                  <ProductCard key={item} id={item} content={`商品配置${item}`} />
+                </View>
+              )}
+              keyExtractor={(item) => item}
+              // 頂部下拉加載
+              refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleEvent.onMobileRefresh} tintColor={"#1f99b0"} />}
+              // 觸底加載
+              onEndReached={handleEvent.onEndReached}
+              // 到全部內容20%的時候加載更多
+              onEndReachedThreshold={0.2}
+            />
+          )}
+        </React.Fragment>
       )}
 
       {/* 核心佈局變化：使用 Flexbox */}
@@ -103,7 +157,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 20,
   },
-
+  flatList: {
+    flex: 1,
+    // alignItems: "center",
+    // justifyContent: "center",
+    width: "100%",
+  },
+  baseButton: {
+    backgroundColor: "#1f99b0", // 預設背景色 (來自你的 color prop 邏輯)
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 4, // 圓角現在生效了！
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  disabledButton: {
+    backgroundColor: "#cccccc", // 禁用時的背景色
+  },
+  disabledText: {
+    color: "#999999", // 禁用時的文字色
+  },
   // 標題樣式根據設備調整大小
   titlePhone: { fontSize: 24, padding: 10 },
   titleTablet: { fontSize: 36, padding: 20 },

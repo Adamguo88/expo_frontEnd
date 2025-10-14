@@ -34,7 +34,7 @@ export default function useFetchData({ isKeyword = "", isCallSearch = false }) {
 
   useEffect(() => {
     const value = Math.round(Math.random() * 100);
-    if (value < 60) {
+    if (value < 10) {
       setIsError(true);
     }
   }, []);

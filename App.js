@@ -9,7 +9,6 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <StatusBar />
         <View style={[styles.container, { height: "100%", width: "100%" }]}>
-          <StatusBar style="dark" />
           <ProductScreen />
         </View>
       </SafeAreaView>
