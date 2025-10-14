@@ -8,7 +8,7 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <StatusBar />
-        <View style={[styles.container, { height: "100%" }]}>
+        <View style={[styles.container, { height: "100%", width: "100%" }]}>
           <StatusBar style="dark" />
           <ProductScreen />
         </View>

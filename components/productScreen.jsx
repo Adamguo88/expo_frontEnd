@@ -1,67 +1,87 @@
-import { View, Text, StyleSheet, Button, ScrollView } from "react-native";
-import { useDeviceType } from "../hooks/useDeviceType"; // 引入自定義 Hook
 import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Button, ScrollView, Keyboard, RefreshControl } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { useDeviceType } from "../hooks/useDeviceType"; // 引入自定義 Hook
 import Input from "./ui/Input";
+import Loading from "./ui/Loading";
+import NetworkError from "./ui/NetworkError";
+import useFetchData from "@hooks/useFetchData";
+// import useFetchData from "@hooks/useReducerFetchData";
 
 export default function ProductScreen() {
-  const [isCourse, setIsCourse] = useState([]);
   const [isKeyword, setIsKeyword] = useState("");
+  const [isCallSearch, setIsCallSearch] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { isCourse, isLoading, isError, setIsCourse, onReload } = useFetchData({ isKeyword, isCallSearch });
   const { isTablet } = useDeviceType();
-
   const handleEvent = {
-    buttonTest: async () => {
-      const response = await fetch(`https://expo-backend-one.vercel.app/api/expo?search=${isKeyword}`);
-      const { data } = await response.json();
-      console.log(data);
-      setIsCourse(data);
+    callSearch: () => {
+      setIsCallSearch(true);
+      setTimeout(() => {
+        setIsCallSearch(false);
+      }, 1000);
+    },
+    onMobileRefresh: () => {
+      setIsRefreshing(true);
+      console.log("加載");
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 2000);
     },
   };
 
-  useEffect(() => {
-    handleEvent.buttonTest();
-  }, [isKeyword]);
+  if (isError) {
+    return <NetworkError onReload={onReload} />;
+  }
 
   return (
     <View style={styles.container}>
-      <Button title="按鈕" onPress={handleEvent.buttonTest} />
-      <Input isKeyword={isKeyword} setIsKeyword={setIsKeyword} />
+      <View style={styles.search}>
+        <Input isKeyword={isKeyword} setIsKeyword={setIsKeyword} />
+        <Button title="按鈕" onPress={handleEvent.callSearch} style={{ borderRadius: 20 }} disabled={isCallSearch} />
+      </View>
       <Text style={isTablet ? styles.titleTablet : styles.titlePhone}>商品列表</Text>
+      {isLoading ? (
+        <Loading size="small" color="#000" />
+      ) : (
+        <SafeAreaProvider>
+          <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+            <ScrollView
+              refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleEvent.onMobileRefresh} tintColor={"#1f99b0"} />}
+            >
+              <View style={[styles.listContainer, isTablet ? styles.listTablet : styles.listPhone]}>
+                {isCourse.length >= 1 ? (
+                  <React.Fragment>
+                    {/* 假設 ProductCard 是您的商品卡片組件 */}
+                    {isCourse.map((item) => {
+                      return <ProductCard key={item.id} id={item.id} content={item.name} />;
+                    })}
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <ProductCard key={1} id={1} content={"商品配置1"} />
+                    <ProductCard key={2} id={2} content={"商品配置2"} />
+                    <ProductCard key={3} id={3} content={"商品配置3"} />
+                    <ProductCard key={4} id={4} content={"商品配置4"} />
+                    <ProductCard key={5} id={5} content={"商品配置5"} />
+                    <ProductCard key={6} id={6} content={"商品配置6"} />
+                    <ProductCard key={7} id={7} content={"商品配置7"} />
+                    <ProductCard key={8} id={8} content={"商品配置8"} />
+                    <ProductCard key={9} id={9} content={"商品配置9"} />
+                    <ProductCard key={10} id={10} content={"商品配置10"} />
+                    <ProductCard key={11} id={11} content={"商品配置11"} />
+                    <ProductCard key={12} id={12} content={"商品配置12"} />
+                    <ProductCard key={13} id={13} content={"商品配置13"} />
+                    <ProductCard key={14} id={14} content={"商品配置14"} />
+                  </React.Fragment>
+                )}
+              </View>
+            </ScrollView>
+          </SafeAreaView>
+        </SafeAreaProvider>
+      )}
 
       {/* 核心佈局變化：使用 Flexbox */}
-      <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
-          <ScrollView>
-            <View style={[styles.listContainer, isTablet ? styles.listTablet : styles.listPhone]}>
-              {isCourse.length >= 1 ? (
-                <React.Fragment>
-                  {/* 假設 ProductCard 是您的商品卡片組件 */}
-                  {isCourse.map((item) => {
-                    return <ProductCard key={item.id} id={item.id} content={item.name} />;
-                  })}
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  <ProductCard key={1} id={1} content={"商品配置1"} />
-                  <ProductCard key={2} id={2} content={"商品配置2"} />
-                  <ProductCard key={3} id={3} content={"商品配置3"} />
-                  <ProductCard key={4} id={4} content={"商品配置4"} />
-                  <ProductCard key={5} id={5} content={"商品配置5"} />
-                  <ProductCard key={6} id={6} content={"商品配置6"} />
-                  <ProductCard key={7} id={7} content={"商品配置7"} />
-                  <ProductCard key={8} id={8} content={"商品配置8"} />
-                  <ProductCard key={9} id={9} content={"商品配置9"} />
-                  <ProductCard key={10} id={10} content={"商品配置10"} />
-                  <ProductCard key={11} id={11} content={"商品配置11"} />
-                  <ProductCard key={12} id={12} content={"商品配置12"} />
-                  <ProductCard key={13} id={13} content={"商品配置13"} />
-                  <ProductCard key={14} id={14} content={"商品配置14"} />
-                </React.Fragment>
-              )}
-            </View>
-          </ScrollView>
-        </SafeAreaView>
-      </SafeAreaProvider>
     </View>
   );
 }
@@ -74,7 +94,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingBottom: 30,
     height: "100%",
+    width: "100%",
     backgroundColor: "gray",
+  },
+
+  search: {
+    display: "flex",
+    flexDirection: "row",
+    marginTop: 20,
   },
 
   // 標題樣式根據設備調整大小

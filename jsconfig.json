@@ -1,0 +1,12 @@
+// tsconfig.json 或 jsconfig.json
+{
+  "compilerOptions": {
+    // 👈 設定基底路徑為專案根目錄
+    "paths": {
+      // 確保每個路徑都從 ./ 開始
+      "@assets/*": ["./assets/*"],
+      "@components/*": ["./components/*"],
+      "@hooks/*": ["./hooks/*"]
+    }
+  }
+}
