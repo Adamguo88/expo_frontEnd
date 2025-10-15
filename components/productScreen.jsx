@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Button, ScrollView, RefreshControl, FlatList, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, Button, ScrollView, RefreshControl, FlatList, TouchableOpacity, Alert, Pressable } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useDeviceType } from "../hooks/useDeviceType"; // 引入自定義 Hook
@@ -7,6 +7,7 @@ import Input from "./ui/Input";
 import Loading from "./ui/Loading";
 import NetworkError from "./ui/NetworkError";
 import useFetchData from "@hooks/useFetchData";
+import { useRouter } from "expo-router";
 // import useFetchData from "@hooks/useReducerFetchData";
 let mockData = Array.from({ length: 15 }).map((_, i) => i + 1);
 export default function ProductScreen() {
@@ -16,6 +17,7 @@ export default function ProductScreen() {
   const { isCourse, isLoading, isError, setIsCourse, onReload } = useFetchData({ isKeyword, isCallSearch });
   const [isMockCount, setIsMockCount] = useState(1);
   const { isTablet } = useDeviceType();
+  const router = useRouter();
 
   const handleEvent = {
     callSearch: () => {
@@ -37,6 +39,12 @@ export default function ProductScreen() {
       mockData = [...mockData, ...newMockData];
       console.log(mockData);
       setIsMockCount((c) => (c += 1));
+    },
+    navigateProduct: (item) => {
+      router.navigate({
+        pathname: "/product/[id]",
+        params: { id: item },
+      });
     },
   };
   const alertEvent = {
@@ -92,7 +100,7 @@ export default function ProductScreen() {
         <Button title="alert測試2" color="#1f99b0" onPress={alertEvent.two} />
         <Button title="alert測試2" color="#1f99b0" onPress={alertEvent.three} />
       </View>
-      <Image style={{ width: 200, height: 200 }} source="https://expo-backend-one.vercel.app/images/pic.jpg" />
+      {/* <Image style={{ width: 200, height: 200 }} source="https://expo-backend-one.vercel.app/images/pic.jpg" /> */}
       <Text style={isTablet ? styles.titleTablet : styles.titlePhone}>商品列表</Text>
       {isLoading ? (
         <Loading size="small" color="#000" />
@@ -108,7 +116,21 @@ export default function ProductScreen() {
                 >
                   <View style={[styles.listContainer, isTablet ? styles.listTablet : styles.listPhone]}>
                     {isCourse.map((item) => {
-                      return <ProductCard key={item.id} id={item.id} content={item.name} />;
+                      return (
+                        <Pressable
+                          key={item.id}
+                          onPress={() =>
+                            router.navigate({
+                              pathname: "/product/[id]",
+                              params: { id: item.id, name: item.name },
+                            })
+                          }
+                        >
+                          <View style={{ alignItems: "center", justifyContent: "center" }}>
+                            <ProductCard id={item.id} content={item.name} />
+                          </View>
+                        </Pressable>
+                      );
                     })}
                   </View>
                 </ScrollView>
@@ -119,9 +141,11 @@ export default function ProductScreen() {
               style={styles.flatList}
               data={mockData}
               renderItem={({ item }) => (
-                <View style={{ alignItems: "center", justifyContent: "center" }}>
-                  <ProductCard key={item} id={item} content={`商品配置${item}`} />
-                </View>
+                <Pressable onPress={() => handleEvent.navigateProduct(item)}>
+                  <View style={{ alignItems: "center", justifyContent: "center" }}>
+                    <ProductCard key={item} id={item} content={`商品配置${item}`} />
+                  </View>
+                </Pressable>
               )}
               keyExtractor={(item) => item}
               // 頂部下拉加載

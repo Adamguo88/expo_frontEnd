@@ -5,3 +5,9 @@
 
 2. npx expo start
    若要再 ios 手機上進行預覽需先下載 Expo go app，連接同 wifi 設備才能夠正常運作
+
+## app.json
+
+"schema":"test"
+新增這個東西，能夠在當行動裝置有下載這個 app 的時候，直接透過網址的方式自動開啟 app
+透過 test://courses/react-native
