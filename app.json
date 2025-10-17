@@ -2,7 +2,7 @@
   "expo": {
     "name": "my-expo",
     "slug": "my-expo",
-    "scheme": "expo",
+    "schema": "expo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,21 +13,38 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "notification": {
+      "web": {
+        "vapidPublicKey": "BNdUbR2YNdUYKJAvehpI7uQjlaU_BGxFmNQWxZjtAH2-58sw-fPfWTgpG6IHPwJVrt8Y3OCEPH49P1wmchy_HTI"
+      }
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.adam88.myexpo",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.adam88.myexpo"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4eef10a6-c717-455c-8af6-7892a4a8e9d4"
+      }
+    },
+    "owner": "adam88"
   }
 }
